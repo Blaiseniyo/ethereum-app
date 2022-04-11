@@ -49,25 +49,50 @@ contract("Token", ([deployer,receiver]) => {
          })
     })
 
-    describe("Send the token", ()=>{
+    describe("success", () => {
+        describe("Transfer tokens", ()=>{
+            let result;
+            let amount = tokens(100);
+            beforeEach(async()=>{
+                result = await token.transfer(receiver, amount, {from: deployer})
+            })
+    
+            it("it Should be transfer token", async()=>{
+                let balanceOf;
+                balanceOf = await token.balanceOf(deployer);
+                balanceOf.toString().should.equal(tokens(999900).toString());
+    
+                balanceOf = await token.balanceOf(receiver);
+                balanceOf.toString().should.equal(tokens(100).toString());
+                
+            })
+    
+            it("it emits a Transfer event", async()=>{
+    
+                result.logs[0].event.should.equal("Transfer");
+                result.logs[0].args.from.should.equal(deployer);
+                result.logs[0].args.to.should.equal(receiver);
+                result.logs[0].args.value.toString().should.equal(amount.toString());
+            })
+        })
+    })
 
-        it("it Should be transfer token", async()=>{
-            let balanceOf;
-            balanceOf = await token.balanceOf(deployer);
-            console.log("balance of deployer before transfer: ", balanceOf.toString());
-            balanceOf = await token.balanceOf(receiver);
-            console.log("balance of receiver before transfer: ", balanceOf.toString());
-            //transfer token
-            await token.transfer(receiver, tokens(100), {from: deployer});
-            balanceOf = await token.balanceOf(deployer);
-            console.log("balance of deployer after transfer: ", balanceOf.toString());
-            balanceOf = await token.balanceOf(receiver);
-            console.log("balance of receiver after transfer: ", balanceOf.toString());
-            // const result = await token.transfer(receiver, tokens(10));
+    describe("failure", () => {
 
-            // result.logs[0].args._from.should.equal(deployer);
-            // result.logs[0].args._to.should.equal(receiver);
-            // result.logs[0].args._value.toString().should.equal(tokens(10).toString());
+
+        it("rejects insufficient funds", async()=>{
+            let invalidAmount;
+
+            invalidAmount = tokens(100000000000);
+            await token.transfer(receiver, invalidAmount, {from: deployer}).should.be.rejected;
+
+            invalidAmount = tokens(100);
+            await token.transfer(deployer, invalidAmount, {from: receiver}).should.be.rejected;
+        })
+
+        it("rejects an invalid address", async()=>{
+            let amount = tokens(100);
+            await token.transfer(0x0, amount, {from: deployer}).should.be.rejected;
         })
     })
 })
