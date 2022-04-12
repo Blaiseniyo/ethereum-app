@@ -1,4 +1,6 @@
-import Web3 from "web3"
+import Web3 from "web3";
+
+export const VMError = "VM Exception while processing transaction: revert"
 
 export const tokens = (n)=>{
 
