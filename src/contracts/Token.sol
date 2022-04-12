@@ -46,6 +46,8 @@ contract Token{
 
 
     function transferFrom(address from, address to , uint256 value) public returns (bool succes){
+        require(balanceOf[from] >= value);
+        require(allowance[from][msg.sender] >= value);
         allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
         _transfer(from, to, value);
         return true;
