@@ -37,7 +37,7 @@ contract Token{
     function approve(address spender, uint256 _value) public returns (bool success){
         require(spender != address(0));
 
-        allowance[msg.sender][spender] = _value;
+        allowance[msg.sender][spender] = allowance[msg.sender][spender].add(_value);
         
         emit Approval(msg.sender, spender, _value);
 
