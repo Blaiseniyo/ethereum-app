@@ -97,7 +97,7 @@ contract("Token", ([deployer,receiver,spender]) => {
     })
 
 
-    describe("Transfer Token", ()=>{
+    describe("Delageted Token Transfer", ()=>{
 
 
         describe("success", async()=>{
@@ -118,25 +118,32 @@ contract("Token", ([deployer,receiver,spender]) => {
                 result.logs[0].args.value.toString().should.equal(amount.toString());
             })
     
-            it("it should send the allowance token to the spender", async()=>{
+            it("it should allow token transfer by the spender", async()=>{
                 
                 allowance = await token.allowance(deployer, spender);
                 allowance.toString().should.equal(amount.toString());
             })
 
-            describe("Transfer Tokens ", ()=>{
+            describe("Transfer Token to the receiver from the owner ", ()=>{
                 beforeEach(async()=>{
                     result = await token.transferFrom(deployer, receiver, amount, {from: spender});
                 })
     
         
-                it("it should transfer the token from the spender to the receiver", async()=>{
+                it("it should transfer the token from the owner to the receiver", async()=>{
                     
                     allowance = await token.allowance(deployer, spender);
                     allowance.toString().should.equal("0");
         
                 })
         
+                it("it should update the balanceOf the receiver after delegated transfer", async()=>{
+
+                    let balanceOf = await token.balanceOf(receiver);
+                    balanceOf.toString().should.equal(amount.toString());
+            
+                })
+
                 it("it should emit a Transfer event", async()=>{
                     
                     result.logs[0].event.should.equal("Transfer");
